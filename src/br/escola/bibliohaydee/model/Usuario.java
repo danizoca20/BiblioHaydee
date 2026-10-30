@@ -1,6 +1,9 @@
+
 package br.escola.bibliohaydee.model;
 
 public class Usuario {
+
+    public static final int LIMITE_PADRAO = 3;
 
     private String nome;
     private String matricula;
@@ -11,24 +14,35 @@ public class Usuario {
     public Usuario(String nomeInicial, String matriculaInicial,
                    String tipoInicial, Integer limiteInicial) {
 
-        emprestimosAtivos = 0;
-
-        if (nomeInicial != null && !nomeInicial.isEmpty()
+        if (nomeValido(nomeInicial)
                 && matriculaInicial != null
                 && !matriculaInicial.isEmpty()
                 && tipoValido(tipoInicial)
-                && limiteInicial != null
-                && limiteInicial >= 0) {
+                && limiteValido(limiteInicial)) {
 
-            nome = nomeInicial;
+            nome = nomeInicial.trim();
             matricula = matriculaInicial;
             tipo = tipoInicial;
             limiteEmprestimos = limiteInicial;
+            emprestimosAtivos = 0;
+
         } else {
-            System.out.println(
-                    "Erro: dados invalidos para cadastrar usuario."
-            );
+            System.out.println("Erro: dados invalidos para cadastrar usuario.");
         }
+    }
+
+    // Construtor alternativo com limite padrao
+    public Usuario(String nomeInicial, String matriculaInicial,
+                   String tipoInicial) {
+        this(nomeInicial, matriculaInicial, tipoInicial, LIMITE_PADRAO);
+    }
+
+    public static boolean nomeValido(String nome) {
+        return nome != null && !nome.trim().isEmpty();
+    }
+
+    public static boolean limiteValido(int limite) {
+        return limite >= 1;
     }
 
     private boolean tipoValido(String novoTipo) {
@@ -41,12 +55,13 @@ public class Usuario {
         return nome;
     }
 
-    public boolean setNome(String novoNome) {
-        if (novoNome != null && !novoNome.isEmpty()) {
-            nome = novoNome;
-            return true;
+    public boolean setNome(String nome) {
+        if (!nomeValido(nome)) {
+            return false;
         }
-        return false;
+
+        this.nome = nome.trim();
+        return true;
     }
 
     public String getMatricula() {
@@ -57,16 +72,17 @@ public class Usuario {
         return tipo;
     }
 
-    public boolean setTipo(String novoTipo) {
-        if (tipoValido(novoTipo)) {
-            tipo = novoTipo;
-            return true;
-        }
-        return false;
-    }
-
     public Integer getLimiteEmprestimos() {
         return limiteEmprestimos;
+    }
+
+    public boolean setLimiteEmprestimos(int limiteEmprestimos) {
+        if (!limiteValido(limiteEmprestimos)) {
+            return false;
+        }
+
+        this.limiteEmprestimos = limiteEmprestimos;
+        return true;
     }
 
     public Integer getEmprestimosAtivos() {
@@ -74,11 +90,13 @@ public class Usuario {
     }
 
     public boolean isValido() {
-        return nome != null && !nome.isEmpty()
-                && matricula != null && !matricula.isEmpty()
+        return nomeValido(nome)
+                && matricula != null
+                && !matricula.isEmpty()
                 && tipoValido(tipo)
                 && limiteEmprestimos != null
-                && limiteEmprestimos >= 0;
+                && limiteValido(limiteEmprestimos)
+                && emprestimosAtivos != null;
     }
 
     @Override

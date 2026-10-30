@@ -1,24 +1,26 @@
+
 package br.escola.bibliohaydee.model;
 
 public class Livro {
-
     private String titulo;
     private String isbn;
     private Autor autor;
-    private int anoPublicacao;
+    private Integer anoDePublicacao;
     private String genero;
-    private boolean disponivel;
 
-    public Livro(String tituloInicial, String isbnInicial,
-                 Autor autorInicial, int anoInicial,
-                 String generoInicial) {
+    public Livro(String titulo, String isbn, Autor autor,
+                 Integer anoDePublicacao, String genero) {
+        this.titulo = titulo;
+        this.isbn = isbn;
+        this.autor = autor;
+        this.anoDePublicacao = anoDePublicacao;
+        this.genero = genero;
+    }
 
-        titulo = tituloInicial;
-        isbn = isbnInicial;
-        autor = autorInicial;
-        anoPublicacao = anoInicial;
-        genero = generoInicial;
-        disponivel = true;
+    // Construtor sobrecarregado: sem informar o gênero
+    public Livro(String titulo, String isbn, Autor autor,
+                 Integer anoDePublicacao) {
+        this(titulo, isbn, autor, anoDePublicacao, "Não informado");
     }
 
     public String getTitulo() {
@@ -33,16 +35,12 @@ public class Livro {
         return autor;
     }
 
-    public int getAnoPublicacao() {
-        return anoPublicacao;
+    public Integer getAnoDePublicacao() {
+        return anoDePublicacao;
     }
 
     public String getGenero() {
         return genero;
-    }
-
-    public boolean isDisponivel() {
-        return disponivel;
     }
 
     @Override
@@ -51,9 +49,8 @@ public class Livro {
                 "titulo='" + titulo + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", autor=" + autor +
-                ", anoPublicacao=" + anoPublicacao +
+                ", anoDePublicacao=" + anoDePublicacao +
                 ", genero='" + genero + '\'' +
-                ", disponivel=" + disponivel +
                 '}';
     }
 }

@@ -10,100 +10,186 @@ import java.util.Scanner;
 
 public class Main {
 
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final List<Usuario> usuarios = new ArrayList<>();
+    private static final List<Autor> autores = new ArrayList<>();
+    private static final List<Livro> livros = new ArrayList<>();
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+       Autor autor = new Autor();
+autor.setNome("Machado de Assis");
+autor.setNacionalidade("Brasileira");
+autor.setAnoNascimento(1839);
 
-        List<Autor> autores = new ArrayList<>();
-        List<Livro> livros = new ArrayList<>();
-        List<Usuario> usuarios = new ArrayList<>();
+autores.add(autor);
 
-        Autor autor1 = new Autor();
-        autor1.setNome("Machado de Assis");
-        autor1.setNacionalidade("Brasileira");
-        autor1.setAnoNascimento(1839);
-        autores.add(autor1);
-
-        Livro livro1 = new Livro(
-            "Dom Casmurro",
-            "978-85-359-0277-5",
-            autor1,
-            1899,
-            "Romance"
+        Livro livro = new Livro(
+                "Dom Casmurro", "123456", autor, 1899
         );
-        livros.add(livro1);
+        livros.add(livro);
 
-        System.out.println("=== AUTORES CADASTRADOS ===");
-        for (Autor autor : autores) {
-            System.out.println(autor);
+        int opcao;
+
+        do {
+            System.out.println("\n===== BIBLIOTECA HAYDEE =====");
+            System.out.println("1 - Cadastrar usuário");
+            System.out.println("2 - Listar usuários");
+            System.out.println("3 - Atualizar usuário");
+            System.out.println("4 - Listar livros");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha: ");
+
+            opcao = lerInteiro();
+
+            switch (opcao) {
+                case 1 -> cadastrarUsuario();
+                case 2 -> listarUsuarios();
+                case 3 -> atualizarUsuario();
+                case 4 -> listarLivros();
+                case 0 -> System.out.println("Programa encerrado.");
+                default -> System.out.println("Opção inválida.");
+            }
+        } while (opcao != 0);
+
+        scanner.close();
+    }
+
+    private static void cadastrarUsuario() {
+        System.out.println("\n--- CADASTRAR USUÁRIO ---");
+
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine().trim();
+
+        System.out.print("Matrícula: ");
+        String matricula = scanner.nextLine().trim();
+
+        System.out.print("Tipo (ALUNO ou PROFESSOR): ");
+        String tipo = scanner.nextLine().trim().toUpperCase();
+
+        if (!Usuario.nomeValido(nome)
+                || matricula.isEmpty()
+                || (!tipo.equals("ALUNO") && !tipo.equals("PROFESSOR"))) {
+            System.out.println("Dados inválidos. Usuário não cadastrado.");
+            return;
         }
 
-        System.out.println("\n=== ACERVO DE LIVROS ===");
+        System.out.print("Definir o limite? (S/N): ");
+        String resposta = scanner.nextLine().trim();
+
+        Usuario usuario;
+
+        if (resposta.equalsIgnoreCase("S")) {
+            System.out.print("Informe o limite de empréstimos: ");
+            int limite = lerInteiro();
+
+            if (!Usuario.limiteValido(limite)) {
+                System.out.println("Limite inválido. Use um número maior que zero.");
+                return;
+            }
+
+            usuario = new Usuario(nome, matricula, tipo, limite);
+        } else if (resposta.equalsIgnoreCase("N")) {
+            usuario = new Usuario(nome, matricula, tipo);
+        } else {
+            System.out.println("Resposta inválida. Use S ou N.");
+            return;
+        }
+
+        if (usuario.isValido()) {
+            usuarios.add(usuario);
+            System.out.println("Usuário cadastrado com sucesso!");
+            System.out.println(usuario);
+        } else {
+            System.out.println("Não foi possível cadastrar o usuário.");
+        }
+    }
+
+    private static void listarUsuarios() {
+        System.out.println("\n--- USUÁRIOS CADASTRADOS ---");
+
+        if (usuarios.isEmpty()) {
+            System.out.println("Nenhum usuário cadastrado.");
+            return;
+        }
+
+        for (Usuario usuario : usuarios) {
+            System.out.println(usuario);
+        }
+    }
+
+    private static Usuario buscarUsuario(String matricula) {
+        for (Usuario usuario : usuarios) {
+            if (usuario.getMatricula().equalsIgnoreCase(matricula)) {
+                return usuario;
+            }
+        }
+
+        return null;
+    }
+
+    private static void atualizarUsuario() {
+        System.out.println("\n--- ATUALIZAR USUÁRIO ---");
+        System.out.print("Digite a matrícula do usuário: ");
+        String matricula = scanner.nextLine().trim();
+
+        Usuario usuario = buscarUsuario(matricula);
+
+        if (usuario == null) {
+            System.out.println("Usuário não localizado. Nenhuma alteração feita.");
+            return;
+        }
+
+        System.out.println("Usuário encontrado: " + usuario);
+        System.out.println("1 - Alterar nome");
+        System.out.println("2 - Alterar limite de empréstimos");
+        System.out.print("Escolha: ");
+
+        int opcao = lerInteiro();
+
+        switch (opcao) {
+            case 1 -> {
+                System.out.print("Novo nome: ");
+                String novoNome = scanner.nextLine();
+
+                if (usuario.setNome(novoNome)) {
+                    System.out.println("Nome atualizado com sucesso!");
+                } else {
+                    System.out.println("Nome inválido. Nenhuma alteração feita.");
+                }
+            }
+            case 2 -> {
+                System.out.print("Novo limite: ");
+                int novoLimite = lerInteiro();
+
+                if (usuario.setLimiteEmprestimos(novoLimite)) {
+                    System.out.println("Limite atualizado com sucesso!");
+                } else {
+                    System.out.println("Limite inválido. Use um número maior que zero.");
+                }
+            }
+            default -> System.out.println("Opção inválida. Nenhuma alteração feita.");
+        }
+
+        System.out.println("Estado atual: " + usuario);
+    }
+
+    private static void listarLivros() {
+        System.out.println("\n--- LIVROS CADASTRADOS ---");
+
         for (Livro livro : livros) {
             System.out.println(livro);
         }
+    }
 
-        System.out.println("\n=== CADASTRO DE USUARIO ===");
-
-        String nome;
-        do {
-            System.out.print("Nome: ");
-            nome = scanner.nextLine().trim();
-
-            if (nome.isEmpty()) {
-                System.out.println("Nome obrigatorio. Tente novamente.");
-            }
-        } while (nome.isEmpty());
-
-        String matricula;
-        do {
-            System.out.print("Matricula: ");
-            matricula = scanner.nextLine().trim();
-
-            if (matricula.isEmpty()) {
-                System.out.println("Matricula obrigatoria. Tente novamente.");
-            }
-        } while (matricula.isEmpty());
-
-        String tipo;
-        do {
-            System.out.print("Tipo (ALUNO ou PROFESSOR): ");
-            tipo = scanner.nextLine().trim().toUpperCase();
-
-            if (!tipo.equals("ALUNO") && !tipo.equals("PROFESSOR")) {
-                System.out.println("Tipo invalido. Digite ALUNO ou PROFESSOR.");
-            }
-        } while (!tipo.equals("ALUNO") && !tipo.equals("PROFESSOR"));
-
-        int limite;
+    private static int lerInteiro() {
         while (true) {
-            System.out.print("Limite de emprestimos: ");
             String entrada = scanner.nextLine().trim();
 
             try {
-                limite = Integer.parseInt(entrada);
-                if (limite >= 0) {
-                    break;
-                }
+                return Integer.parseInt(entrada);
             } catch (NumberFormatException e) {
-                // Solicita novamente se a entrada nao for um inteiro.
+                System.out.print("Digite um número inteiro válido: ");
             }
-
-            System.out.println("Digite um numero inteiro igual ou maior que zero.");
         }
-
-        Usuario usuario1 = new Usuario(nome, matricula, tipo, limite);
-
-        if (usuario1.isValido()) {
-            usuarios.add(usuario1);
-            System.out.println("\n=== USUARIO CADASTRADO ===");
-            System.out.println(usuario1);
-            System.out.println(
-                "Emprestimos ativos: " + usuario1.getEmprestimosAtivos()
-            );
-        } else {
-            System.out.println("Nao foi possivel cadastrar o usuario.");
-        }
-
-        scanner.close();
     }
 }
