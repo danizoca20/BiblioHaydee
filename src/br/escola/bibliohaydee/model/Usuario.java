@@ -1,4 +1,3 @@
-
 package br.escola.bibliohaydee.model;
 
 public class Usuario {
@@ -12,7 +11,7 @@ public class Usuario {
     private Integer emprestimosAtivos;
 
     public Usuario(String nomeInicial, String matriculaInicial,
-                   String tipoInicial, Integer limiteInicial) {
+            String tipoInicial, Integer limiteInicial) {
 
         if (nomeValido(nomeInicial)
                 && matriculaInicial != null
@@ -33,7 +32,7 @@ public class Usuario {
 
     // Construtor alternativo com limite padrao
     public Usuario(String nomeInicial, String matriculaInicial,
-                   String tipoInicial) {
+            String tipoInicial) {
         this(nomeInicial, matriculaInicial, tipoInicial, LIMITE_PADRAO);
     }
 
@@ -101,12 +100,21 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" +
-                "nome='" + nome + '\'' +
-                ", matricula='" + matricula + '\'' +
-                ", tipo='" + tipo + '\'' +
-                ", limiteEmprestimos=" + limiteEmprestimos +
-                ", emprestimosAtivos=" + emprestimosAtivos +
-                '}';
+        return "Usuario{"
+                + "nome='" + nome + '\''
+                + ", matricula='" + matricula + '\''
+                + ", tipo='" + tipo + '\''
+                + ", limiteEmprestimos=" + limiteEmprestimos
+                + ", emprestimosAtivos=" + emprestimosAtivos
+                + '}';
     }
+
+    public boolean podeEmprestar() {
+        return emprestimosAtivos < limiteEmprestimos;
+    }
+
+    public void registrarEmprestimo() {
+        emprestimosAtivos++;
+    }
+
 }

@@ -2,9 +2,9 @@
 package br.escola.bibliohaydee.app;
 
 import br.escola.bibliohaydee.model.Autor;
+import br.escola.bibliohaydee.model.Emprestimo;
 import br.escola.bibliohaydee.model.Livro;
 import br.escola.bibliohaydee.model.Usuario;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +16,7 @@ public class Main {
     private static final List<Usuario> usuarios = new ArrayList<>();
     private static final List<Autor> autores = new ArrayList<>();
     private static final List<Livro> livros = new ArrayList<>();
+    private static final List<Emprestimo> emprestimos = new ArrayList<>();
 
     public static void main(String[] args) {
         carregarAcervo();
@@ -31,6 +32,8 @@ public class Main {
             System.out.println("5 - Pesquisar livro por título");
             System.out.println("6 - Pesquisar livro por autor");
             System.out.println("7 - Gerar relatório do acervo");
+            System.out.println("8 - Registrar empréstimo");
+            System.out.println("9 - Consultar disponibilidade");
             System.out.println("0 - Sair");
             System.out.print("Escolha: ");
 
@@ -44,6 +47,8 @@ public class Main {
                 case 5 -> pesquisarPorTitulo();
                 case 6 -> pesquisarPorAutor();
                 case 7 -> gerarRelatorio();
+                case 8 -> registrarEmprestimo();
+                case 9 -> consultarDisponibilidade();
                 case 0 -> System.out.println("Programa encerrado.");
                 default -> System.out.println("Opção inválida.");
             }
@@ -135,8 +140,17 @@ public class Main {
 
     private static Usuario buscarUsuario(String matricula) {
         for (Usuario usuario : usuarios) {
-            if (usuario.getMatricula().equalsIgnoreCase(matricula)) {
+            if (usuario.getMatricula().equals(matricula)) {
                 return usuario;
+            }
+        }
+        return null;
+    }
+
+    private static Livro buscarLivroPorIsbn(String isbn) {
+        for (Livro livro : livros) {
+            if (livro.getIsbn().equals(isbn)) {
+                return livro;
             }
         }
         return null;
@@ -268,7 +282,9 @@ public class Main {
                         .append(livro.getTitulo())
                         .append(" | Autor: ")
                         .append(livro.getAutor().getNome())
-                        .append(" | Disponibilidade: Disponível\n");
+                        .append(" | Disponibilidade: ")
+                        .append(livro.estaDisponivel() ? "Disponível" : "Emprestado")
+                        .append("\n");
 
                 numero++;
             }
@@ -279,6 +295,68 @@ public class Main {
         }
 
         System.out.println(relatorio.toString());
+    }
+
+    private static void registrarEmprestimo() {
+        System.out.println("\n--- REGISTRAR EMPRÉSTIMO ---");
+
+        System.out.print("Digite o ISBN do livro: ");
+        String isbn = scanner.nextLine().trim();
+
+        Livro livro = buscarLivroPorIsbn(isbn);
+
+        if (livro == null) {
+            System.out.println("Livro não encontrado. Empréstimo não realizado.");
+            return;
+        }
+
+        System.out.print("Digite a matrícula do usuário: ");
+        String matricula = scanner.nextLine().trim();
+
+        Usuario usuario = buscarUsuario(matricula);
+
+        if (usuario == null) {
+            System.out.println("Usuário não encontrado. Empréstimo não realizado.");
+            return;
+        }
+
+        if (!usuario.podeEmprestar()) {
+            System.out.println("Usuário atingiu o limite de empréstimos.");
+            return;
+        }
+
+        if (!livro.emprestar()) {
+            System.out.println("Este livro já está emprestado.");
+            return;
+        }
+
+        usuario.registrarEmprestimo();
+
+        Emprestimo emprestimo = new Emprestimo(livro, usuario);
+        emprestimos.add(emprestimo);
+
+        System.out.println("Empréstimo registrado com sucesso!");
+        System.out.println(emprestimo);
+    }
+
+    private static void consultarDisponibilidade() {
+        System.out.println("\n--- CONSULTAR DISPONIBILIDADE ---");
+
+        System.out.print("Digite o ISBN do livro: ");
+        String isbn = scanner.nextLine().trim();
+
+        Livro livro = buscarLivroPorIsbn(isbn);
+
+        if (livro == null) {
+            System.out.println("Livro não encontrado.");
+            return;
+        }
+
+        if (livro.estaDisponivel()) {
+            System.out.println("O livro está disponível para empréstimo.");
+        } else {
+            System.out.println("O livro está emprestado no momento.");
+        }
     }
 
     private static int lerInteiro() {
